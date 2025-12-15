@@ -1,162 +1,124 @@
-// API 키를 입력하세요. (실제 키로 교체해야 합니다)
-// 중요: 이 키들은 예시이며, 실제로는 각 사이트에서 발급받은 본인의 키를 사용해야 합니다.
-// 이 키들을 외부에 노출하지 않도록 주의하세요.
-const GOOGLE_API_KEY = "YOUR_GOOGLE_API_KEY"; // Google API 키
-const GOOGLE_CX_ID = "YOUR_GOOGLE_CX_ID";   // Google Programmable Search Engine ID
-const UNSPLASH_ACCESS_KEY = "YOUR_UNSPLASH_ACCESS_KEY"; // Unsplash API 키
-
 // HTML 요소들을 가져옵니다.
 const randomBtn = document.getElementById('random-btn');
 const nextBtn = document.getElementById('next-btn');
 const destinationTitle = document.getElementById('destination-title');
 const gridContainer = document.getElementById('grid-container');
 
-// 각 콘텐츠 영역
-const flightsContent = document.getElementById('flights-content');
-const photosContent = document.getElementById('photos-content');
-const blogsContent = document.getElementById('blogs-content');
-const geminiContent = document.getElementById('gemini-content');
-
-// 1. 랜덤으로 뽑을 세계 여행지 목록 (원하는 만큼 추가/수정 가능)
+// 1. 랜덤으로 뽑을 세계 여행지 목록
 const travelDestinations = [
-    "파리, 프랑스", "교토, 일본", "로마, 이탈리아", "뉴욕, 미국", "시드니, 호주",
-    "방콕, 태국", "런던, 영국", "두바이, 아랍에미리트", "바르셀로나, 스페인",
-    "싱가포르", "홍콩", "서울, 대한민국", "이스탄불, 튀르키예", "프라하, 체코",
-    "빈, 오스트리아", "다낭, 베트남", "발리, 인도네시아", "취리히, 스위스"
+  "도쿄, 일본", "오사카, 일본", "후쿠오카, 일본", "삿포로, 일본", "교토, 일본",
+  "베이징, 중국", "상하이, 중국", "시안, 중국", "청두, 중국", "항저우, 중국",
+  "타이베이, 대만", "가오슝, 대만", "홍콩, 중국", "마카오, 중국", 
+  "방콕, 태국", "치앙마이, 태국", "푸껫, 태국", "파타야, 태국",
+  "하노이, 베트남", "다낭, 베트남", "호찌민, 베트남", "나트랑, 베트남",
+  "싱가포르", "쿠알라룸푸르, 말레이시아", "코타키나발루, 말레이시아",
+  "마닐라, 필리핀", "세부, 필리핀", "보라카이, 필리핀",
+  "발리, 인도네시아", "자카르타, 인도네시아",
+  "뉴델리, 인도", "뭄바이, 인도", "두바이, 아랍에미리트", "울란바토르, 몽골",
+  "타슈켄트, 우즈베키스탄", "알마티, 카자흐스탄", "파리, 프랑스", "니스, 프랑스", 
+  "리옹, 프랑스", "마르세유, 프랑스", "런던, 영국", "에든버러, 영국", "맨체스터, 영국", 
+  "리버풀, 영국", "로마, 이탈리아", "피렌체, 이탈리아", "베네치아, 이탈리아", "밀라노, 이탈리아", 
+  "나폴리, 이탈리아", "바르셀로나, 스페인", "마드리드, 스페인", "세비야, 스페인", "그라나다, 스페인",
+  "리스본, 포르투갈", "포르투, 포르투갈", "베를린, 독일", "뮌헨, 독일", "프랑크푸르트, 독일", 
+  "함부르크, 독일", "취리히, 스위스", "인터라켄, 스위스", "제네바, 스위스", "루체른, 스위스",
+  "암스테르담, 네덜란드", "로테르담, 네덜란드", "브뤼셀, 벨기에", "브뤼허, 벨기에",
+  "프라하, 체코", "체스키크룸로프, 체코", "빈, 오스트리아", "잘츠부르크, 오스트리아", 
+  "할슈타트, 오스트리아", "부다페스트, 헝가리", "아테네, 그리스", "산토리니, 그리스",
+  "이스탄불, 튀르키예", "카파도키아, 튀르기예", "스톡홀름, 스웨덴", "코펜하겐, 덴마크", 
+  "오슬로, 노르웨이", "헬싱키, 핀란드", "레이캬비크, 아이슬란드", "더블린, 아일랜드", 
+  "바르샤바, 폴란드", "크라쿠프, 폴란드", "뉴욕, 미국", "로스앤젤레스, 미국", "시카고, 미국", 
+  "샌프란시스코, 미국", "라스베이거스, 미국", "하와이, 미국", "마이애미, 미국", "보스턴, 미국", 
+  "워싱턴 D.C., 미국", "시애틀, 미국", "밴쿠버, 캐나다", "토론토, 캐나다", "몬트리올, 캐나다", 
+  "퀘벡 시티, 캐나다", "밴프, 캐나다", "멕시코시티, 멕시코", "칸쿤, 멕시코", "아바나, 쿠바", 
+  "산호세, 코스타리카", "파나마시티, 파나마", "부에노스아이레스, 아르헨티나", "리우데자네이루, 브라질", 
+  "상파울루, 브라질", "리마, 페루", "쿠스코, 페루", "산티아고, 칠레", "보고타, 콜롬비아", 
+  "키토, 에콰도르", "카이로, 이집트", "마라케시, 모로코", "케이프타운, 남아프리카 공화국",
+  "나이로비, 케냐", "잔지바르, 탄자니아", "텔아비브, 이스라엘", "예루살렘, 이스라엘",
+  "시드니, 호주", "멜버른, 호주", "브리즈번, 호주", "케언스, 호주",
+  "오클랜드, 뉴질랜드", "퀸스타운, 뉴질랜드", "크라이스트처치, 뉴질랜드", "난디, 피지"
 ];
 
-let selectedDestination = ""; // 선택된 여행지를 저장할 변수
+let selectedDestination = ""; 
 
 // "랜덤한 여행지 뽑기" 버튼 클릭 이벤트
 randomBtn.addEventListener('click', () => {
-    // 1-1. 여행지 목록에서 무작위로 하나를 선택
     const randomIndex = Math.floor(Math.random() * travelDestinations.length);
     selectedDestination = travelDestinations[randomIndex];
     
-    // 1-2. 선택된 여행지 이름을 화면에 표시
     destinationTitle.innerText = `✨ ${selectedDestination} ✨`;
     destinationTitle.style.display = 'block';
     
-    // 1-3. '자세한 정보 보기' 버튼을 표시
     nextBtn.style.display = 'inline-block';
-
-    // 1-4. 이전에 표시되었을 수 있는 결과 그리드는 숨김
     gridContainer.style.display = 'none';
 });
 
 // "자세한 정보 보기" 버튼 클릭 이벤트
 nextBtn.addEventListener('click', () => {
-    // 2. 4분할 그리드를 화면에 표시
-    gridContainer.style.display = 'grid';
+    // 검색 엔진이 준비되었는지 확인
+    if (window.google && google.search.cse && google.search.cse.element) {
+        gridContainer.style.display = 'grid';
 
-    // 3. 각 그리드에 맞는 정보를 API를 통해 가져와서 채웁니다.
-    getFlightsInfo(selectedDestination);
-    getTravelPhotos(selectedDestination);
-    getRestaurantBlogs(selectedDestination);
-    getGeminiPlan(selectedDestination);
+        // 각 섹션에 맞는 검색어를 실행
+        searchFlights(selectedDestination);
+        searchPhotos(selectedDestination);
+        searchBlogs(selectedDestination);
+        searchPlans(selectedDestination);
+    } else {
+        alert("검색 엔진을 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+    }
 });
 
 
-// --- API 호출 함수들 ---
-
-// 3-1. 항공편 정보 가져오기 (Google Flights 링크 생성)
-function getFlightsInfo(destination) {
-    // 사용자의 현재 위치부터 목적지까지의 Google Flights 검색 URL을 동적으로 생성
-    // API를 사용하지 않고, 가장 간단하게 구현하는 방법입니다.
-    const origin = "ICN"; // 예시: 인천국제공항 코드.
-    const url = `https://www.google.com/flights?q=${origin}+to+${destination.split(',')[0]}`;
-    flightsContent.innerHTML = `<p>아래 링크에서 ${destination}행 항공편을 검색해보세요!</p><a href="${url}" target="_blank">Google Flights에서 검색하기</a>`;
-}
-
-// 3-2. 여행지 사진 4개 가져오기 (Unsplash API 사용)
-async function getTravelPhotos(destination) {
-    photosContent.innerHTML = '<p>사진을 불러오는 중...</p>';
-    const url = `https://api.unsplash.com/search/photos?query=${destination}&per_page=4&client_id=${UNSPLASH_ACCESS_KEY}`;
-    
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        photosContent.innerHTML = ''; // 기존 내용 삭제
+/**
+ * 주어진 div에 Google 검색 결과를 렌더링하는 함수
+ * @param {string} elementId - 결과가 표시될 div의 ID
+ * @param {string} query - 검색할 쿼리
+ * @param {boolean} isImageSearch - 이미지 검색 여부
+ */
+function renderSearchResults(elementId, query, isImageSearch = false) {
+    const targetElement = document.getElementById(elementId);
+    if (targetElement) {
+        // 이전 검색 결과를 지웁니다.
+        targetElement.innerHTML = '';
         
-        if (data.results && data.results.length > 0) {
-            data.results.forEach(photo => {
-                const img = document.createElement('img');
-                img.src = photo.urls.small;
-                img.alt = photo.alt_description;
-                photosContent.appendChild(img);
-            });
-        } else {
-            photosContent.innerText = '해당 여행지의 사진을 찾을 수 없습니다.';
+        // 검색 결과 요소를 생성하고, 옵션을 설정합니다.
+        const options = {
+            div: targetElement,
+            tag: 'searchresults-only',
+        };
+
+        // 이미지 검색일 경우, 기본 검색 타입을 이미지로 설정합니다.
+        if(isImageSearch) {
+            options.gname = `images-for-${elementId}`; // 고유한 gname 설정
+            options.defaultToImageSearch = true;
         }
-    } catch (error) {
-        console.error('Error fetching photos:', error);
-        photosContent.innerText = '사진을 불러오는 데 실패했습니다.';
+
+        // 특정 div에 검색 결과를 렌더링하고 검색을 실행합니다.
+        google.search.cse.element.render(options);
+        google.search.cse.element.getElement(options.gname || 'default').execute(query);
     }
 }
 
-// 3-3. 주변 맛집 블로그 링크 3개 가져오기 (Google Custom Search API 사용)
-async function getRestaurantBlogs(destination) {
-    blogsContent.innerHTML = '<p>맛집 정보를 불러오는 중...</p>';
+// 1. 항공편 검색 함수
+function searchFlights(destination) {
+    const query = `${destination.split(',')[0]} 항공편`;
+    renderSearchResults('flights-content', query);
+}
+
+// 2. 여행지 사진 검색 함수
+function searchPhotos(destination) {
+    const query = `${destination.split(',')[0]} 여행`;
+    renderSearchResults('photos-content', query, true); // 이미지 검색 활성화
+}
+
+// 3. 맛집 블로그 검색 함수
+function searchBlogs(destination) {
     const query = `${destination} 맛집 블로그`;
-    const url = `https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${GOOGLE_CX_ID}&q=${encodeURIComponent(query)}&num=3`;
-
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        blogsContent.innerHTML = ''; // 기존 내용 삭제
-
-        if (data.items && data.items.length > 0) {
-            data.items.forEach(item => {
-                const link = document.createElement('a');
-                link.href = item.link;
-                link.innerText = item.title;
-                link.target = '_blank'; // 새 탭에서 열기
-                blogsContent.appendChild(link);
-            });
-        } else {
-            blogsContent.innerText = '관련 맛집 블로그를 찾을 수 없습니다.';
-        }
-    } catch (error) {
-        console.error('Error fetching blogs:', error);
-        blogsContent.innerText = '맛집 정보를 불러오는 데 실패했습니다.';
-    }
+    renderSearchResults('blogs-content', query);
 }
 
-// 3-4. Gemini 추천 여행 계획 가져오기 (Google AI - Gemini API 사용)
-async function getGeminiPlan(destination) {
-    geminiContent.innerText = '여행 계획을 불러오는 중...';
-    // Gemini API는 Google AI Studio에서 API 키를 받아야 합니다.
-    const GEMINI_API_KEY = GOOGLE_API_KEY; // Google API 키를 사용합니다.
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
-    
-    // Gemini에게 보낼 질문(프롬프트)
-    const prompt = `'${destination}' 여행을 위한 3박 4일 효율적인 여행 계획을 짜줘. 매일 오전, 오후, 저녁으로 나누어서 구체적인 활동과 장소를 추천해줘.`;
-
-    const requestBody = {
-        contents: [{
-            parts: [{
-                text: prompt
-            }]
-        }]
-    };
-
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestBody),
-        });
-
-        const data = await response.json();
-        
-        // Gemini의 답변 텍스트를 추출
-        const geminiResponseText = data.candidates[0].content.parts[0].text;
-        geminiContent.innerText = geminiResponseText;
-
-    } catch (error) {
-        console.error('Error fetching Gemini plan:', error);
-        geminiContent.innerText = 'Gemini 여행 계획을 불러오는 데 실패했습니다. API 키를 확인해주세요.';
-    }
+// 4. 여행 계획 검색 함수
+function searchPlans(destination) {
+    const query = `${destination} 3박 4일 추천 여행 코스`;
+    renderSearchResults('plan-content', query);
 }
