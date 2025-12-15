@@ -81,7 +81,7 @@ function renderSearchResults(elementId, query, isImageSearch = false) {
     if (!targetElement) return;
 
     // 각 검색 인스턴스를 구별하기 위한 고유한 이름 생성
-    const gname = `gse-` + elementId; 
+    const gname = `gse-${elementId}`; 
     
     // 검색 결과 표시를 위한 옵션 설정
     const options = {
@@ -107,7 +107,6 @@ function renderSearchResults(elementId, query, isImageSearch = false) {
 
 // 1. 항공편 검색 실행 함수
 function searchFlights(destination) {
-    // "현재 위치"는 사용자마다 다르므로, 출발지를 '인천'으로 고정
     const query = `인천에서 ${destination.split(',')[0]} 항공편`;
     renderSearchResults('flights-content', query, false); // 일반 웹 검색
 }

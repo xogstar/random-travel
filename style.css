@@ -34,8 +34,9 @@ button:hover {
 /* 4분할 그리드 컨테이너 스타일 */
 #grid-container {
     display: grid;
+    /* 2개의 열을 1:1 비율로 생성 */
     grid-template-columns: 1fr 1fr; 
-    gap: 20px;
+    gap: 25px; /* 칸 사이 간격을 조금 더 넓게 */
     margin-top: 30px;
     text-align: left;
 }
@@ -47,9 +48,10 @@ button:hover {
     border-radius: 8px;
     padding: 20px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    /* 검색 결과가 넘칠 경우를 대비 */
-    overflow: auto;
-    height: 400px; /* 높이를 고정하여 레이아웃 유지 */
+    overflow: auto; /* 검색 결과가 넘칠 경우 스크롤 생성 */
+    
+    /* === 여기를 수정했습니다! === */
+    height: 600px; /* 네모칸 높이를 600px로 크게 키움 (원하는 크기로 조절 가능) */
 }
 
 .grid-item h3 {
@@ -58,8 +60,9 @@ button:hover {
     margin-top: 0;
 }
 
-/* CSE 검색결과 스타일 조정을 위해 추가 */
+/* Google 검색 결과가 네모칸에 딱 맞도록 스타일 조정 */
 .grid-item .gsc-control-cse {
     padding: 0;
     border: none;
+    background-color: transparent;
 }
