@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>랜덤 여행지 추천</title>
+    <!-- CSS 파일 연결 -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>어디로 떠나볼까요?</h1>
+        <p>버튼을 눌러 예상치 못한 여행지를 만나보세요!</p>
+        
+        <!-- 1. 랜덤 여행지 뽑기 버튼 -->
+        <button id="random-btn">✈️ 랜덤한 여행지 뽑기!</button>
+        
+        <!-- 뽑힌 여행지 이름이 표시될 곳 -->
+        <h2 id="destination-title"></h2>
+
+        <!-- '다음 화면' 버튼 (처음에는 숨겨져 있음) -->
+        <button id="next-btn" style="display: none;">자세한 정보 보기</button>
+
+        <!-- 2. 4분할 결과 화면 (처음에는 숨겨져 있음) -->
+        <div id="grid-container" style="display: none;">
+            <!-- 2-1. 항공편 정보 -->
+            <div class="grid-item">
+                <h3>✈️ 항공편 정보</h3>
+                <div id="flights-content">항공편 정보를 불러오는 중...</div>
+            </div>
+            
+            <!-- 2-2. 여행지 사진 -->
+            <div class="grid-item">
+                <h3>📸 여행지 대표 사진</h3>
+                <div id="photos-content">
+                    <p>사진을 불러오는 중...</p>
+                </div>
+            </div>
+
+            <!-- 2-3. 맛집 블로그 -->
+            <div class="grid-item">
+                <h3>🍽️ 주변 맛집 블로그</h3>
+                <div id="blogs-content">맛집 정보를 불러오는 중...</div>
+            </div>
+
+            <!-- 2-4. Gemini 여행 계획 -->
+            <div class="grid-item">
+                <h3>🤖 Gemini 추천 여행 계획</h3>
+                <div id="gemini-content">여행 계획을 불러오는 중...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 파일 연결 -->
+    <script src="script.js"></script>
+</body>
+</html>
