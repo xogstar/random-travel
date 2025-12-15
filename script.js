@@ -49,23 +49,19 @@ randomBtn.addEventListener('click', () => {
     destinationTitle.style.display = 'block';
     
     nextBtn.style.display = 'inline-block';
-    gridContainer.style.display = 'none'; // 다음 버튼 누르기 전까지 결과 숨김
+    gridContainer.style.display = 'none';
 });
 
 // "자세한 정보 보기" 버튼 클릭 이벤트
 nextBtn.addEventListener('click', () => {
-    // Google 검색 엔진이 로드되었는지 최종 확인
     if (window.google && google.search.cse && google.search.cse.element) {
-        // 4분할 화면을 보여줌
         gridContainer.style.display = 'grid';
 
-        // 각 섹션에 맞는 검색을 자동으로 실행
         searchFlights(selectedDestination);
         searchPhotos(selectedDestination);
         searchBlogs(selectedDestination);
         searchPlansAsImages(selectedDestination);
     } else {
-        // 로드가 안됐을 경우 사용자에게 알림
         alert("검색 엔진을 불러오는 중입니다. 1-2초 후 다시 시도해주세요.");
     }
 });
@@ -80,25 +76,26 @@ function renderSearchResults(elementId, query, isImageSearch = false) {
     const targetElement = document.getElementById(elementId);
     if (!targetElement) return;
 
-    // 각 검색 인스턴스를 구별하기 위한 고유한 이름 생성
+    // === 여기가 버그를 해결하는 가장 중요한 코드입니다! ===
+    // 새로운 검색을 렌더링하기 전에, div 안의 모든 내용을 깨끗하게 지웁니다.
+    // 이렇게 하면 이전 검색 결과나 낡은 CSE 인스턴스가 남지 않습니다.
+    targetElement.innerHTML = '';
+    // ===============================================
+
     const gname = `gse-${elementId}`; 
     
-    // 검색 결과 표시를 위한 옵션 설정
     const options = {
         div: targetElement,
         tag: 'searchresults-only',
         gname: gname,
     };
     
-    // 이미지 검색일 경우, 이미지 검색을 기본으로 설정
     if (isImageSearch) {
         options.defaultToImageSearch = true;
     }
     
-    // 1. 지정된 div에 검색 결과 표시 영역을 렌더링
     google.search.cse.element.render(options);
 
-    // 2. 렌더링된 영역을 찾아, 지정된 검색어로 검색을 즉시 실행
     const cseElement = google.search.cse.element.getElement(gname);
     if(cseElement) {
         cseElement.execute(query);
@@ -108,23 +105,23 @@ function renderSearchResults(elementId, query, isImageSearch = false) {
 // 1. 항공편 검색 실행 함수
 function searchFlights(destination) {
     const query = `인천에서 ${destination.split(',')[0]} 항공편`;
-    renderSearchResults('flights-content', query, false); // 일반 웹 검색
+    renderSearchResults('flights-content', query, false);
 }
 
 // 2. 여행지 사진 검색 실행 함수
 function searchPhotos(destination) {
     const query = `${destination.split(',')[0]} 여행`;
-    renderSearchResults('photos-content', query, true); // 이미지 검색
+    renderSearchResults('photos-content', query, true);
 }
 
 // 3. 맛집 블로그 검색 실행 함수
 function searchBlogs(destination) {
     const query = `${destination} 맛집 블로그`;
-    renderSearchResults('blogs-content', query, false); // 일반 웹 검색
+    renderSearchResults('blogs-content', query, false);
 }
 
 // 4. 여행 계획 (이미지) 검색 실행 함수
 function searchPlansAsImages(destination) {
     const query = `${destination} 3박 4일 여행 코스`;
-    renderSearchResults('plan-content', query, true); // 이미지 검색
+    renderSearchResults('plan-content', query, true);
 }
