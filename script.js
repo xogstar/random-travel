@@ -4,7 +4,6 @@ const nextBtn = document.getElementById('next-btn');
 const destinationTitle = document.getElementById('destination-title');
 const gridContainer = document.getElementById('grid-container');
 
-// 1. 랜덤으로 뽑을 세계 여행지 목록
 const travelDestinations = [
   "도쿄, 일본", "오사카, 일본", "후쿠오카, 일본", "삿포로, 일본", "교토, 일본",
   "베이징, 중국", "상하이, 중국", "시안, 중국", "청두, 중국", "항저우, 중국",
@@ -40,7 +39,6 @@ const travelDestinations = [
 
 let selectedDestination = ""; 
 
-// "랜덤한 여행지 뽑기" 버튼 클릭 이벤트
 randomBtn.addEventListener('click', () => {
     const randomIndex = Math.floor(Math.random() * travelDestinations.length);
     selectedDestination = travelDestinations[randomIndex];
@@ -52,7 +50,6 @@ randomBtn.addEventListener('click', () => {
     gridContainer.style.display = 'none';
 });
 
-// "자세한 정보 보기" 버튼 클릭 이벤트
 nextBtn.addEventListener('click', () => {
     if (window.google && google.search.cse && google.search.cse.element) {
         gridContainer.style.display = 'grid';
@@ -66,21 +63,11 @@ nextBtn.addEventListener('click', () => {
     }
 });
 
-/**
- * 특정 div 영역에 지정된 검색어와 타입으로 Google 검색 결과를 렌더링하는 핵심 함수
- * @param {string} elementId - 결과가 표시될 div의 ID
- * @param {string} query - 검색할 키워드
- * @param {boolean} isImageSearch - 이미지 검색을 할지 여부 (true/false)
- */
 function renderSearchResults(elementId, query, isImageSearch = false) {
     const targetElement = document.getElementById(elementId);
     if (!targetElement) return;
 
-    // === 여기가 버그를 해결하는 가장 중요한 코드입니다! ===
-    // 새로운 검색을 렌더링하기 전에, div 안의 모든 내용을 깨끗하게 지웁니다.
-    // 이렇게 하면 이전 검색 결과나 낡은 CSE 인스턴스가 남지 않습니다.
     targetElement.innerHTML = '';
-    // ===============================================
 
     const gname = `gse-${elementId}`; 
     
@@ -102,25 +89,21 @@ function renderSearchResults(elementId, query, isImageSearch = false) {
     }
 }
 
-// 1. 항공편 검색 실행 함수
 function searchFlights(destination) {
     const query = `인천에서 ${destination.split(',')[0]} 항공편`;
     renderSearchResults('flights-content', query, false);
 }
 
-// 2. 여행지 사진 검색 실행 함수
 function searchPhotos(destination) {
     const query = `${destination.split(',')[0]} 여행`;
     renderSearchResults('photos-content', query, true);
 }
 
-// 3. 맛집 블로그 검색 실행 함수
 function searchBlogs(destination) {
     const query = `${destination} 맛집 블로그`;
     renderSearchResults('blogs-content', query, false);
 }
 
-// 4. 여행 계획 (이미지) 검색 실행 함수
 function searchPlansAsImages(destination) {
     const query = `${destination} 3박 4일 여행 코스`;
     renderSearchResults('plan-content', query, true);

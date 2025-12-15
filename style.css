@@ -7,13 +7,10 @@ body {
     padding: 20px;
     text-align: center;
 }
-
 .container {
     max-width: 1200px;
     margin: 0 auto;
 }
-
-/* 버튼 스타일 */
 button {
     background-color: #007bff;
     color: white;
@@ -25,13 +22,10 @@ button {
     transition: background-color 0.3s, transform 0.2s;
     margin-top: 20px;
 }
-
 button:hover {
     background-color: #0056b3;
     transform: scale(1.05);
 }
-
-/* 4분할 그리드 컨테이너 스타일 */
 #grid-container {
     display: grid;
     grid-template-columns: 1fr 1fr; 
@@ -39,8 +33,6 @@ button:hover {
     margin-top: 30px;
     text-align: left;
 }
-
-/* 그리드 아이템 기본 스타일 */
 .grid-item {
     background-color: white;
     border: 1px solid #ddd;
@@ -50,20 +42,14 @@ button:hover {
     overflow: auto;
     height: 600px;
 }
-
 .grid-item h3 {
     border-bottom: 2px solid #007bff;
     padding-bottom: 10px;
     margin-top: 0;
 }
-
-/* === 여기를 수정했습니다! (가장 중요) === */
-/* 모든 검색창의 '웹/이미지' 탭 영역을 숨겨서 오류를 원천 차단 */
 .grid-item .gsc-tabsArea {
     display: none !important;
 }
-
-/* Google 검색 결과가 네모칸에 딱 맞도록 스타일 조정 */
 .grid-item .gsc-control-cse {
     padding: 0;
     border: none;
