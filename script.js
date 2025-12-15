@@ -5,7 +5,8 @@ const destinationTitle = document.getElementById('destination-title');
 const gridContainer = document.getElementById('grid-container');
 
 // 중요: YOUR_CX_ID를 본인의 Google CSE ID로 교체하세요.
-const CSE_ID = "YOUR_CX_ID"; 
+// 이 ID는 iframe 방식에서는 사용되지 않지만, 1번, 3번 칸을 위해 필요합니다.
+const CSE_ID = "YOUR_CX_ID";
 
 const travelDestinations = [
   "도쿄, 일본", "오사카, 일본", "후쿠오카, 일본", "삿포로, 일본", "교토, 일본",
@@ -38,15 +39,13 @@ const travelDestinations = [
   "오클랜드, 뉴질랜드", "퀸스타운, 뉴질랜드", "크라이스트처치, 뉴질랜드", "난디, 피지"
 ];
 
-let selectedDestination = ""; 
+let selectedDestination = "";
 
 randomBtn.addEventListener('click', () => {
     const randomIndex = Math.floor(Math.random() * travelDestinations.length);
     selectedDestination = travelDestinations[randomIndex];
-    
     destinationTitle.innerText = `✨ ${selectedDestination} ✨`;
     destinationTitle.style.display = 'block';
-    
     nextBtn.style.display = 'inline-block';
     gridContainer.style.display = 'none';
 });
@@ -54,52 +53,45 @@ randomBtn.addEventListener('click', () => {
 nextBtn.addEventListener('click', () => {
     gridContainer.style.display = 'grid';
 
-    // 3개의 웹 검색창 렌더링
+    // 1번, 3번 칸은 기존 CSE 렌더링 방식 사용
     searchFlights(selectedDestination);
     searchBlogs(selectedDestination);
-    createAiOverviewLink(selectedDestination);
     
-    // 2번 칸은 iframe을 이용한 이미지 전용 검색 실행
+    // 2번, 4번 칸은 충돌을 피하기 위해 iframe 격리 방식 사용
     searchPhotosInIframe(selectedDestination);
+    searchPlansInIframe(selectedDestination);
 });
 
-// 웹 검색 결과를 렌더링하는 함수 (항공편, 맛집)
+// 1번, 3번 칸을 위한 웹 검색 결과 렌더링 함수
 function renderSearchResults(elementId, query) {
-    if (!window.google || !google.search.cse || !google.search.cse.element) {
-        return;
-    }
+    if (!window.google || !google.search.cse || !google.search.cse.element) return;
     const targetElement = document.getElementById(elementId);
     if (!targetElement) return;
     targetElement.innerHTML = '';
     const gname = `gse-${elementId}`; 
-    const options = {
-        div: targetElement,
-        tag: 'searchresults-only',
-        gname: gname,
-    };
+    const options = { div: targetElement, tag: 'searchresults-only', gname: gname };
     google.search.cse.element.render(options);
     const cseElement = google.search.cse.element.getElement(gname);
-    if(cseElement) cseElement.execute(query);
+    if (cseElement) cseElement.execute(query);
 }
 
-// === 여기가 이미지 검색 문제를 해결하는 새로운 코드입니다! ===
-// iframe을 생성하여 이미지 검색 결과만 표시하는 함수
+// 2번 칸을 위한 이미지 전용 iframe 생성 함수
 function searchPhotosInIframe(destination) {
     const photosContent = document.getElementById('photos-content');
     if (!photosContent) return;
-
     const query = `${destination.split(',')[0]} 여행`;
-    
-    // iframe에 로드할 이미지 검색 전용 URL 생성
-    // &tbm=isch 파라미터가 '이미지 검색'을 의미합니다.
+    // &tbm=isch 파라미터가 '이미지 검색'을 강제합니다.
     const url = `https://www.google.com/search?q=${encodeURIComponent(query)}&tbm=isch&igu=1`;
+    photosContent.innerHTML = `<iframe src="${url}" class="search-iframe"></iframe>`;
+}
 
-    // div 내용을 모두 지우고, iframe을 생성하여 추가
-    photosContent.innerHTML = '';
-    const iframe = document.createElement('iframe');
-    iframe.src = url;
-    iframe.className = 'search-iframe'; // CSS 스타일링을 위한 클래스
-    photosContent.appendChild(iframe);
+// 4번 칸을 위한 여행 계획 전용 iframe 생성 함수
+function searchPlansInIframe(destination) {
+    const planContent = document.getElementById('plan-content');
+    if (!planContent) return;
+    const query = `${destination} 3박 4일 추천 여행 코스`;
+    const url = `https://www.google.com/search?q=${encodeURIComponent(query)}&igu=1`;
+    planContent.innerHTML = `<iframe src="${url}" class="search-iframe"></iframe>`;
 }
 
 function searchFlights(destination) {
@@ -110,13 +102,4 @@ function searchFlights(destination) {
 function searchBlogs(destination) {
     const query = `${destination} 맛집 블로그`;
     renderSearchResults('blogs-content', query);
-}
-
-function createAiOverviewLink(destination) {
-    const planContent = document.getElementById('plan-content');
-    if (!planContent) return;
-    const query = `${destination} 3박 4일 추천 여행 코스`;
-    const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
-    planContent.innerHTML = '';
-    planContent.innerHTML = `<a href="${url}" target="_blank">Google AI 요약<br>결과 보기</a>`;
 }
