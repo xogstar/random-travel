@@ -1,3 +1,6 @@
+// === 1단계에서 발급받은 키를 여기에 입력하세요! ===
+const UNSPLASH_ACCESS_KEY = "YOUR_UNSPLASH_ACCESS_KEY"; 
+
 const randomBtn = document.getElementById('random-btn');
 const nextBtn = document.getElementById('next-btn');
 const destinationTitle = document.getElementById('destination-title');
@@ -50,9 +53,11 @@ nextBtn.addEventListener('click', () => {
     searchFlights(selectedDestination);
     searchBlogs(selectedDestination);
     searchPlans(selectedDestination);
-    searchPhotos(selectedDestination);
+    // 새로운 Unsplash API 호출 함수 실행
+    searchPhotosOnUnsplash(selectedDestination);
 });
 
+// 1, 3, 4번 칸을 위한 Google CSE 렌더링 함수
 function renderSearchResults(elementId, query) {
     if (!window.google || !google.search.cse || !google.search.cse.element) return;
     const targetElement = document.getElementById(elementId);
@@ -65,16 +70,46 @@ function renderSearchResults(elementId, query) {
     if (cseElement) cseElement.execute(query);
 }
 
-// 2번 칸을 위한 이미지 전용 iframe 생성 함수
-function searchPhotos(destination) {
+// === 여기가 이미지 문제를 해결하는 새로운 코드입니다! ===
+// 2번 칸을 위한 Unsplash API 호출 및 이미지 렌더링 함수
+async function searchPhotosOnUnsplash(destination) {
     const photosContent = document.getElementById('photos-content');
     if (!photosContent) return;
-    const query = `${destination.split(',')[0]} 여행`;
-    // 'image_search.html'에 검색어를 전달하여 iframe으로 로드
-    photosContent.innerHTML = `<iframe src="image_search.html?query=${encodeURIComponent(query)}" class="search-iframe"></iframe>`;
+
+    // API 키가 입력되었는지 확인
+    if (UNSPLASH_ACCESS_KEY === "Xf1LCQQl_mhBRFT_lf7Vm87ALx4s7pfjRJ-ZhcyZqVQ" || !UNSPLASH_ACCESS_KEY) {
+        photosContent.innerHTML = "<p>Unsplash API 키를 입력해야 사진이 표시됩니다.</p>";
+        return;
+    }
+
+    const query = `${destination.split(',')[0]} travel`;
+    const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=4&client_id=${UNSPLASH_ACCESS_KEY}`;
+    
+    photosContent.innerHTML = "<p>사진을 불러오는 중...</p>";
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        photosContent.innerHTML = ''; // 기존 내용 삭제
+        
+        if (data.results && data.results.length > 0) {
+            data.results.forEach(photo => {
+                const img = document.createElement('img');
+                img.src = photo.urls.small;
+                img.alt = photo.alt_description;
+                photosContent.appendChild(img);
+            });
+        } else {
+            photosContent.innerHTML = '<p>해당 여행지의 사진을 찾을 수 없습니다.</p>';
+        }
+    } catch (error) {
+        console.error('Error fetching from Unsplash:', error);
+        photosContent.innerHTML = '<p>사진을 불러오는 데 실패했습니다. API 키를 확인해주세요.</p>';
+    }
 }
 
-// 1번, 3번, 4번 칸을 위한 함수들
+// 1, 3, 4번 칸을 위한 함수들
 function searchFlights(destination) {
     const query = `인천에서 ${destination.split(',')[0]} 항공편`;
     renderSearchResults('flights-content', query);
