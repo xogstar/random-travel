@@ -1,12 +1,7 @@
-// HTML 요소들을 가져옵니다.
 const randomBtn = document.getElementById('random-btn');
 const nextBtn = document.getElementById('next-btn');
 const destinationTitle = document.getElementById('destination-title');
 const gridContainer = document.getElementById('grid-container');
-
-// 중요: YOUR_CX_ID를 본인의 Google CSE ID로 교체하세요.
-// 이 ID는 iframe 방식에서는 사용되지 않지만, 1번, 3번 칸을 위해 필요합니다.
-const CSE_ID = "YOUR_CX_ID";
 
 const travelDestinations = [
   "도쿄, 일본", "오사카, 일본", "후쿠오카, 일본", "삿포로, 일본", "교토, 일본",
@@ -52,17 +47,12 @@ randomBtn.addEventListener('click', () => {
 
 nextBtn.addEventListener('click', () => {
     gridContainer.style.display = 'grid';
-
-    // 1번, 3번 칸은 기존 CSE 렌더링 방식 사용
     searchFlights(selectedDestination);
     searchBlogs(selectedDestination);
-    
-    // 2번, 4번 칸은 충돌을 피하기 위해 iframe 격리 방식 사용
-    searchPhotosInIframe(selectedDestination);
-    searchPlansInIframe(selectedDestination);
+    searchPlans(selectedDestination);
+    searchPhotos(selectedDestination);
 });
 
-// 1번, 3번 칸을 위한 웹 검색 결과 렌더링 함수
 function renderSearchResults(elementId, query) {
     if (!window.google || !google.search.cse || !google.search.cse.element) return;
     const targetElement = document.getElementById(elementId);
@@ -76,24 +66,15 @@ function renderSearchResults(elementId, query) {
 }
 
 // 2번 칸을 위한 이미지 전용 iframe 생성 함수
-function searchPhotosInIframe(destination) {
+function searchPhotos(destination) {
     const photosContent = document.getElementById('photos-content');
     if (!photosContent) return;
     const query = `${destination.split(',')[0]} 여행`;
-    // &tbm=isch 파라미터가 '이미지 검색'을 강제합니다.
-    const url = `https://www.google.com/search?q=${encodeURIComponent(query)}&tbm=isch&igu=1`;
-    photosContent.innerHTML = `<iframe src="${url}" class="search-iframe"></iframe>`;
+    // 'image_search.html'에 검색어를 전달하여 iframe으로 로드
+    photosContent.innerHTML = `<iframe src="image_search.html?query=${encodeURIComponent(query)}" class="search-iframe"></iframe>`;
 }
 
-// 4번 칸을 위한 여행 계획 전용 iframe 생성 함수
-function searchPlansInIframe(destination) {
-    const planContent = document.getElementById('plan-content');
-    if (!planContent) return;
-    const query = `${destination} 3박 4일 추천 여행 코스`;
-    const url = `https://www.google.com/search?q=${encodeURIComponent(query)}&igu=1`;
-    planContent.innerHTML = `<iframe src="${url}" class="search-iframe"></iframe>`;
-}
-
+// 1번, 3번, 4번 칸을 위한 함수들
 function searchFlights(destination) {
     const query = `인천에서 ${destination.split(',')[0]} 항공편`;
     renderSearchResults('flights-content', query);
@@ -102,4 +83,9 @@ function searchFlights(destination) {
 function searchBlogs(destination) {
     const query = `${destination} 맛집 블로그`;
     renderSearchResults('blogs-content', query);
+}
+
+function searchPlans(destination) {
+    const query = `${destination} 3박 4일 추천 여행 코스`;
+    renderSearchResults('plan-content', query);
 }

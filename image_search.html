@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Image Search Only</title>
+    <style>
+        /* 페이지 여백 제거 및 검색 결과 스타일 초기화 */
+        body, html { margin: 0; padding: 0; height: 100%; }
+        .gsc-control-cse { border: none; padding: 0; background: none; }
+        .gsc-tabsArea, .gsc-branding { display: none !important; }
+    </style>
+</head>
+<body>
+    <!-- 결과가 표시될 영역 -->
+    <div id="image-results"></div>
+
+    <!-- CSE 스크립트 -->
+    <script async src="https://cse.google.com/cse.js?cx=96bf7b2b160744f4f"></script>
+    <script>
+        // 이 페이지가 로드되었을 때 실행되는 함수
+        window.onload = function() {
+            // URL에서 검색어(query)를 추출 (예: ?query=파리 -> "파리")
+            const params = new URLSearchParams(window.location.search);
+            const query = params.get('query');
+
+            if (query && window.google && google.search.cse) {
+                // 이미지 검색만 실행하도록 옵션 설정
+                google.search.cse.element.render({
+                    div: "image-results",
+                    tag: 'searchresults-only',
+                    gname: 'image-gse',
+                    defaultToImageSearch: true // 이미지 검색을 기본값으로 강제
+                });
+                
+                const cseElement = google.search.cse.element.getElement('image-gse');
+                if(cseElement) {
+                    cseElement.execute(query);
+                }
+            }
+        };
+    </script>
+</body>
+</html>
