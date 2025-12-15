@@ -1,5 +1,5 @@
-// === 1단계에서 발급받은 키를 여기에 입력하세요! ===
-const UNSPLASH_ACCESS_KEY = "YOUR_UNSPLASH_ACCESS_KEY"; 
+// === Unsplash API 키를 여기에 입력하세요! ===
+const UNSPLASH_ACCESS_KEY = "Xf1LCQQl_mhBRFT_lf7Vm87ALx4s7pfjRJ-ZhcyZqVQ"; 
 
 const randomBtn = document.getElementById('random-btn');
 const nextBtn = document.getElementById('next-btn');
@@ -52,12 +52,12 @@ nextBtn.addEventListener('click', () => {
     gridContainer.style.display = 'grid';
     searchFlights(selectedDestination);
     searchBlogs(selectedDestination);
-    searchPlans(selectedDestination);
-    // 새로운 Unsplash API 호출 함수 실행
     searchPhotosOnUnsplash(selectedDestination);
+    // 4번째 칸은 롤백된 '링크 생성' 함수 호출
+    createAiOverviewLink(selectedDestination);
 });
 
-// 1, 3, 4번 칸을 위한 Google CSE 렌더링 함수
+// 1, 3번 칸을 위한 Google CSE 렌더링 함수
 function renderSearchResults(elementId, query) {
     if (!window.google || !google.search.cse || !google.search.cse.element) return;
     const targetElement = document.getElementById(elementId);
@@ -70,29 +70,21 @@ function renderSearchResults(elementId, query) {
     if (cseElement) cseElement.execute(query);
 }
 
-// === 여기가 이미지 문제를 해결하는 새로운 코드입니다! ===
 // 2번 칸을 위한 Unsplash API 호출 및 이미지 렌더링 함수
 async function searchPhotosOnUnsplash(destination) {
     const photosContent = document.getElementById('photos-content');
     if (!photosContent) return;
-
-    // API 키가 입력되었는지 확인
     if (UNSPLASH_ACCESS_KEY === "Xf1LCQQl_mhBRFT_lf7Vm87ALx4s7pfjRJ-ZhcyZqVQ" || !UNSPLASH_ACCESS_KEY) {
         photosContent.innerHTML = "<p>Unsplash API 키를 입력해야 사진이 표시됩니다.</p>";
         return;
     }
-
     const query = `${destination.split(',')[0]} travel`;
     const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=4&client_id=${UNSPLASH_ACCESS_KEY}`;
-    
     photosContent.innerHTML = "<p>사진을 불러오는 중...</p>";
-
     try {
         const response = await fetch(url);
         const data = await response.json();
-        
-        photosContent.innerHTML = ''; // 기존 내용 삭제
-        
+        photosContent.innerHTML = '';
         if (data.results && data.results.length > 0) {
             data.results.forEach(photo => {
                 const img = document.createElement('img');
@@ -109,7 +101,19 @@ async function searchPhotosOnUnsplash(destination) {
     }
 }
 
-// 1, 3, 4번 칸을 위한 함수들
+// === 여기가 롤백된 코드입니다! ===
+// 4번 칸을 위한 AI 요약 검색 '링크' 생성 함수
+function createAiOverviewLink(destination) {
+    const planContent = document.getElementById('plan-content');
+    if (!planContent) return;
+    const query = `${destination} 3박 4일 추천 여행 코스`;
+    const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+    planContent.innerHTML = '';
+    // 새 창에서 열리는 링크(a 태그)를 생성하여 추가
+    planContent.innerHTML = `<a href="${url}" target="_blank">Google AI 요약<br>결과 보기</a>`;
+}
+
+// 1, 3번 칸을 위한 함수들
 function searchFlights(destination) {
     const query = `인천에서 ${destination.split(',')[0]} 항공편`;
     renderSearchResults('flights-content', query);
@@ -118,9 +122,4 @@ function searchFlights(destination) {
 function searchBlogs(destination) {
     const query = `${destination} 맛집 블로그`;
     renderSearchResults('blogs-content', query);
-}
-
-function searchPlans(destination) {
-    const query = `${destination} 3박 4일 추천 여행 코스`;
-    renderSearchResults('plan-content', query);
 }
