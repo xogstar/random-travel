@@ -77,6 +77,8 @@ function renderSearchResults(elementId, query, isImageSearch = false) {
         gname: gname,
     };
     
+    // === 여기가 이미지 검색의 핵심입니다! ===
+    // isImageSearch가 true일 경우, 검색 타입을 이미지로 강제합니다.
     if (isImageSearch) {
         options.defaultToImageSearch = true;
     }
@@ -89,21 +91,25 @@ function renderSearchResults(elementId, query, isImageSearch = false) {
     }
 }
 
+// 1. 항공편 검색 실행 함수 (일반 웹 검색)
 function searchFlights(destination) {
     const query = `인천에서 ${destination.split(',')[0]} 항공편`;
     renderSearchResults('flights-content', query, false);
 }
 
+// 2. 여행지 사진 검색 실행 함수 (이미지 검색)
 function searchPhotos(destination) {
     const query = `${destination.split(',')[0]} 여행`;
     renderSearchResults('photos-content', query, true);
 }
 
+// 3. 맛집 블로그 검색 실행 함수 (일반 웹 검색)
 function searchBlogs(destination) {
     const query = `${destination} 맛집 블로그`;
     renderSearchResults('blogs-content', query, false);
 }
 
+// 4. 여행 계획 (AI 요약 대신 이미지) 검색 실행 함수 (이미지 검색)
 function searchPlansAsImages(destination) {
     const query = `${destination} 3박 4일 여행 코스`;
     renderSearchResults('plan-content', query, true);
