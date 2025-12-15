@@ -24,7 +24,7 @@ const travelDestinations = [
   "암스테르담, 네덜란드", "로테르담, 네덜란드", "브뤼셀, 벨기에", "브뤼허, 벨기에",
   "프라하, 체코", "체스키크룸로프, 체코", "빈, 오스트리아", "잘츠부르크, 오스트리아", 
   "할슈타트, 오스트리아", "부다페스트, 헝가리", "아테네, 그리스", "산토리니, 그리스",
-  "이스탄불, 튀르키예", "카파도키아, 튀르기예", "스톡홀름, 스웨덴", "코펜하겐, 덴마크", 
+  "이스탄불, 튀르키예", "카파도키아, 튀르키예", "스톡홀름, 스웨덴", "코펜하겐, 덴마크", 
   "오슬로, 노르웨이", "헬싱키, 핀란드", "레이캬비크, 아이슬란드", "더블린, 아일랜드", 
   "바르샤바, 폴란드", "크라쿠프, 폴란드", "뉴욕, 미국", "로스앤젤레스, 미국", "시카고, 미국", 
   "샌프란시스코, 미국", "라스베이거스, 미국", "하와이, 미국", "마이애미, 미국", "보스턴, 미국", 
@@ -49,76 +49,83 @@ randomBtn.addEventListener('click', () => {
     destinationTitle.style.display = 'block';
     
     nextBtn.style.display = 'inline-block';
-    gridContainer.style.display = 'none';
+    gridContainer.style.display = 'none'; // 다음 버튼 누르기 전까지 결과 숨김
 });
 
 // "자세한 정보 보기" 버튼 클릭 이벤트
 nextBtn.addEventListener('click', () => {
-    // 검색 엔진이 준비되었는지 확인
+    // Google 검색 엔진이 로드되었는지 최종 확인
     if (window.google && google.search.cse && google.search.cse.element) {
+        // 4분할 화면을 보여줌
         gridContainer.style.display = 'grid';
 
-        // 각 섹션에 맞는 검색어를 실행
+        // 각 섹션에 맞는 검색을 자동으로 실행
         searchFlights(selectedDestination);
         searchPhotos(selectedDestination);
         searchBlogs(selectedDestination);
-        searchPlans(selectedDestination);
+        searchPlansAsImages(selectedDestination);
     } else {
-        alert("검색 엔진을 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+        // 로드가 안됐을 경우 사용자에게 알림
+        alert("검색 엔진을 불러오는 중입니다. 1-2초 후 다시 시도해주세요.");
     }
 });
 
-
 /**
- * 주어진 div에 Google 검색 결과를 렌더링하는 함수
+ * 특정 div 영역에 지정된 검색어와 타입으로 Google 검색 결과를 렌더링하는 핵심 함수
  * @param {string} elementId - 결과가 표시될 div의 ID
- * @param {string} query - 검색할 쿼리
- * @param {boolean} isImageSearch - 이미지 검색 여부
+ * @param {string} query - 검색할 키워드
+ * @param {boolean} isImageSearch - 이미지 검색을 할지 여부 (true/false)
  */
 function renderSearchResults(elementId, query, isImageSearch = false) {
     const targetElement = document.getElementById(elementId);
-    if (targetElement) {
-        // 이전 검색 결과를 지웁니다.
-        targetElement.innerHTML = '';
-        
-        // 검색 결과 요소를 생성하고, 옵션을 설정합니다.
-        const options = {
-            div: targetElement,
-            tag: 'searchresults-only',
-        };
+    if (!targetElement) return;
 
-        // 이미지 검색일 경우, 기본 검색 타입을 이미지로 설정합니다.
-        if(isImageSearch) {
-            options.gname = `images-for-${elementId}`; // 고유한 gname 설정
-            options.defaultToImageSearch = true;
-        }
+    // 각 검색 인스턴스를 구별하기 위한 고유한 이름 생성
+    const gname = `gse-` + elementId; 
+    
+    // 검색 결과 표시를 위한 옵션 설정
+    const options = {
+        div: targetElement,
+        tag: 'searchresults-only',
+        gname: gname,
+    };
+    
+    // 이미지 검색일 경우, 이미지 검색을 기본으로 설정
+    if (isImageSearch) {
+        options.defaultToImageSearch = true;
+    }
+    
+    // 1. 지정된 div에 검색 결과 표시 영역을 렌더링
+    google.search.cse.element.render(options);
 
-        // 특정 div에 검색 결과를 렌더링하고 검색을 실행합니다.
-        google.search.cse.element.render(options);
-        google.search.cse.element.getElement(options.gname || 'default').execute(query);
+    // 2. 렌더링된 영역을 찾아, 지정된 검색어로 검색을 즉시 실행
+    const cseElement = google.search.cse.element.getElement(gname);
+    if(cseElement) {
+        cseElement.execute(query);
     }
 }
 
-// 1. 항공편 검색 함수
+// 1. 항공편 검색 실행 함수
 function searchFlights(destination) {
-    const query = `${destination.split(',')[0]} 항공편`;
-    renderSearchResults('flights-content', query);
+    // "현재 위치"는 사용자마다 다르므로, 출발지를 '인천'으로 고정
+    const query = `인천에서 ${destination.split(',')[0]} 항공편`;
+    renderSearchResults('flights-content', query, false); // 일반 웹 검색
 }
 
-// 2. 여행지 사진 검색 함수
+// 2. 여행지 사진 검색 실행 함수
 function searchPhotos(destination) {
     const query = `${destination.split(',')[0]} 여행`;
-    renderSearchResults('photos-content', query, true); // 이미지 검색 활성화
+    renderSearchResults('photos-content', query, true); // 이미지 검색
 }
 
-// 3. 맛집 블로그 검색 함수
+// 3. 맛집 블로그 검색 실행 함수
 function searchBlogs(destination) {
     const query = `${destination} 맛집 블로그`;
-    renderSearchResults('blogs-content', query);
+    renderSearchResults('blogs-content', query, false); // 일반 웹 검색
 }
 
-// 4. 여행 계획 검색 함수
-function searchPlans(destination) {
-    const query = `${destination} 3박 4일 추천 여행 코스`;
-    renderSearchResults('plan-content', query);
+// 4. 여행 계획 (이미지) 검색 실행 함수
+function searchPlansAsImages(destination) {
+    const query = `${destination} 3박 4일 여행 코스`;
+    renderSearchResults('plan-content', query, true); // 이미지 검색
 }
